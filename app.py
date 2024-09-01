@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify, render_template
 from hugchat import hugchat
 from hugchat.login import Login
 
@@ -40,12 +40,12 @@ def get_response():
     user_message = request.form['user_message']
 
     try:
-        # Llamada al método query del chatbot
+        # Llamada al método chat del chatbot
         response = chatbot.chat(user_message)
     except Exception as e:
         response = f"Error al intentar consultar el bot: {str(e)}"
     
-    return {'response': response}
+    return jsonify({'response': response})
 
 # Iniciar la aplicación Flask
 if __name__ == '__main__':

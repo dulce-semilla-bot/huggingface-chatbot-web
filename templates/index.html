@@ -3,60 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatBot</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .chat-box {
-            width: 300px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 50px;
-        }
-        .chat-box textarea {
-            width: 100%;
-            height: 100px;
-        }
-        .chat-box button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-        }
-        .response {
-            margin-top: 20px;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
+    <title>Chat with Hugging Face Bot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="chat-box">
-        <textarea id="user_message" placeholder="Escribe tu mensaje aquí..."></textarea>
-        <button onclick="sendMessage()">Enviar</button>
-        <div id="bot_response" class="response"></div>
+    <h1>Chat with Hugging Face Bot</h1>
+    <div id="chat-box">
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button id="send-btn">Send</button>
     </div>
 
     <script>
-        function sendMessage() {
-            var userMessage = document.getElementById('user_message').value;
-            fetch('/get_response', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'user_message=' + encodeURIComponent(userMessage)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('bot_response').innerText = "Bot: " + data.response;
-            })
-            .catch(error => {
-                document.getElementById('bot_response').innerText = "Error: " + error;
+        $(document).ready(function(){
+            $('#send-btn').click(function(){
+                const userMessage = $('#user-input').val();
+                
+                $.ajax({
+                    url: '/get_response',
+                    method: 'POST',
+                    data: { user_message: userMessage },
+                    success: function(data){
+                        const botResponse = data.response;
+                        $('#chat-log').append('<p><strong>You:</strong> ' + userMessage + '</p>');
+                        $('#chat-log').append('<p><strong>Bot:</strong> ' + botResponse + '</p>');
+                        $('#user-input').val('');
+                    },
+                    error: function(){
+                        $('#chat-log').append('<p><strong>Error:</strong> Could not get a response from the bot.</p>');
+                    }
+                });
             });
-        }
+        });
     </script>
 </body>
 </html>
