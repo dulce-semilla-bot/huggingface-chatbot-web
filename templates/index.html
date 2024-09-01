@@ -3,134 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hugging Face Chatbot</title>
+    <title>ChatBot</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
-        .chat-container {
-            width: 400px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .chat-header {
-            background-color: #007bff;
-            padding: 10px;
-            color: white;
-            text-align: center;
-        }
-        .chat-messages {
-            padding: 15px;
-            height: 300px;
-            overflow-y: auto;
-            border-bottom: 1px solid #ddd;
-        }
-        .message {
-            margin-bottom: 15px;
-        }
-        .message.user {
-            text-align: right;
-        }
-        .message.bot {
-            text-align: left;
-        }
-        .message p {
-            display: inline-block;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 80%;
-        }
-        .message.user p {
-            background-color: #007bff;
-            color: white;
-        }
-        .message.bot p {
-            background-color: #f1f1f1;
-            color: black;
-        }
-        .chat-input {
-            padding: 10px;
-            background-color: #f4f4f4;
-            display: flex;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
+        .chat-box {
+            width: 300px;
+            margin: 0 auto;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 10px;
+            margin-top: 50px;
         }
-        .chat-input button {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            margin-left: 10px;
-            cursor: pointer;
+        .chat-box textarea {
+            width: 100%;
+            height: 100px;
         }
-        .chat-input button:hover {
-            background-color: #0056b3;
+        .chat-box button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+        }
+        .response {
+            margin-top: 20px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>Hugging Face Chatbot</h2>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <!-- Los mensajes aparecerán aquí -->
-        </div>
-        <div class="chat-input">
-            <input type="text" id="user_input" placeholder="Escribe un mensaje...">
-            <button onclick="sendMessage()">Enviar</button>
-        </div>
+    <div class="chat-box">
+        <textarea id="user_message" placeholder="Escribe tu mensaje aquí..."></textarea>
+        <button onclick="sendMessage()">Enviar</button>
+        <div id="bot_response" class="response"></div>
     </div>
 
     <script>
         function sendMessage() {
-            const userInput = document.getElementById("user_input");
-            const userMessage = userInput.value.trim();
-            if (userMessage === "") return;
-
-            addMessage(userMessage, "user");
-            userInput.value = "";
-
-            fetch("/get_response", {
-                method: "POST",
+            var userMessage = document.getElementById('user_message').value;
+            fetch('/get_response', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: "user_input=" + encodeURIComponent(userMessage)
+                body: 'user_message=' + encodeURIComponent(userMessage)
             })
             .then(response => response.json())
             .then(data => {
-                addMessage(data.response, "bot");
+                document.getElementById('bot_response').innerText = "Bot: " + data.response;
+            })
+            .catch(error => {
+                document.getElementById('bot_response').innerText = "Error: " + error;
             });
-        }
-
-        function addMessage(message, sender) {
-            const chatMessages = document.getElementById("chat-messages");
-
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("message", sender);
-
-            const messageText = document.createElement("p");
-            messageText.innerText = message;
-
-            messageDiv.appendChild(messageText);
-            chatMessages.appendChild(messageDiv);
-
-            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     </script>
 </body>

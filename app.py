@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template
 from hugchat import hugchat
 from hugchat.login import Login
 
@@ -10,34 +10,44 @@ email = 'squicano8@gmail.com'
 password = '(/2teCL#H6#p-CV'
 
 # Crear una instancia de la clase Login con las credenciales
-sign = Login(email, password)
+def authenticate_huggingface(email, password):
+    sign = Login(email, password)
+    try:
+        # Iniciar sesión y obtener las cookies
+        cookies = sign.login()
+        print("Autenticación exitosa con Hugging Face")
+        return cookies
+    except Exception as e:
+        print(f"Error durante la autenticación: {str(e)}")
+        return None
 
-# Iniciar sesión y obtener las cookies
-cookies = sign.login()
+# Obtener las cookies de autenticación
+cookies = authenticate_huggingface(email, password)
+if cookies is None:
+    print("No se pudo autenticar con Hugging Face. Verifica las credenciales.")
+    exit(1)
 
 # Crear una instancia de ChatBot con las cookies de autenticación
 chatbot = hugchat.ChatBot(cookies=cookies.get_dict())
 
-# Almacena el ID de la conversación actual para mantener el contexto
-conversation_id = chatbot.new_conversation()
+# Ruta principal para la interfaz de usuario
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-@app.route("/get_response", methods=["POST"])
+# Ruta para manejar la conversación con el bot
+@app.route('/get_response', methods=['POST'])
 def get_response():
-    global conversation_id
-    
-    user_message = request.form["user_input"]
-
-    # Cambiar a la conversación actual para mantener el contexto
-    chatbot.change_conversation(conversation_id)
+    user_message = request.form['user_message']
 
     # Obtener la respuesta del chatbot
-    response = chatbot.query(user_message)
+    try:
+        response = chatbot.query(user_message)
+    except Exception as e:
+        response = f"Error al intentar consultar el bot: {str(e)}"
+    
+    return {'response': response}
 
-    return jsonify({"response": response})
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+# Iniciar la aplicación Flask
+if __name__ == '__main__':
+    app.run(debug=True, port=8080)
