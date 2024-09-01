@@ -9,11 +9,10 @@ app = Flask(__name__)
 email = 'squicano8@gmail.com'
 password = '(/2teCL#H6#p-CV'
 
-# Crear una instancia de la clase Login con las credenciales
+# Función para autenticar con Hugging Face y obtener cookies
 def authenticate_huggingface(email, password):
     sign = Login(email, password)
     try:
-        # Iniciar sesión y obtener las cookies
         cookies = sign.login()
         print("Autenticación exitosa con Hugging Face")
         return cookies
@@ -40,9 +39,9 @@ def index():
 def get_response():
     user_message = request.form['user_message']
 
-    # Obtener la respuesta del chatbot
     try:
-        response = chatbot.query(user_message)
+        # Llamada al método query del chatbot
+        response = chatbot.chat(user_message)
     except Exception as e:
         response = f"Error al intentar consultar el bot: {str(e)}"
     
