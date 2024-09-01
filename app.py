@@ -18,16 +18,20 @@ cookies = sign.login()
 # Crear una instancia de ChatBot con las cookies de autenticación
 chatbot = hugchat.ChatBot(cookies=cookies.get_dict())
 
+# Almacena el ID de la conversación actual para mantener el contexto
+conversation_id = chatbot.new_conversation()
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/get_response", methods=["POST"])
 def get_response():
+    global conversation_id
+    
     user_message = request.form["user_input"]
 
-    # Cambiar a la conversación actual
-    conversation_id = chatbot.new_conversation()
+    # Cambiar a la conversación actual para mantener el contexto
     chatbot.change_conversation(conversation_id)
 
     # Obtener la respuesta del chatbot
