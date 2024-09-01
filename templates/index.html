@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Web Interface</title>
+</head>
+<body>
+    <h1>Chat with the Bot</h1>
+    <form id="chat-form">
+        <input type="text" id="user_input" name="user_input" placeholder="Say something..." required>
+        <button type="submit">Send</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("chat-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const user_input = document.getElementById("user_input").value;
+            const responseDiv = document.getElementById("response");
+
+            const response = await fetch("/get_response", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "user_input=" + encodeURIComponent(user_input)
+            });
+
+            const data = await response.json();
+            responseDiv.innerText = data.response;
+        });
+    </script>
+</body>
+</html>
